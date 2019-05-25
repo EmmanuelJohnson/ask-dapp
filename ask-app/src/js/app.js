@@ -56,6 +56,7 @@ App = {
         if(status == "success"){
           App.flightData = data;
           for(d in data){
+            console.log(data);
             var flight = data[d];
             $('#flights')
             .append(

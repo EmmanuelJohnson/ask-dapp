@@ -1,6 +1,5 @@
 var express = require('express');
-var MongoClient = require('mongodb').MongoClient;
-var url = 'mongodb://localhost/ask';
+var fs = require("fs");
 var app = express();
 
 var bodyParser = require('body-parser'); 
@@ -15,34 +14,32 @@ app.get('/', function (req, res) {
 });
 
 app.get('/airlineFlights', function (req, res){
-  MongoClient.connect(url, function(err, db) {
-    var cursor = db.collection('airlineFlights').find();
-    var airlineFlights = {};
-    cursor.forEach(function(doc) {
-      airlineFlights[doc.FlightID] = doc;
-    },function(err){
-      db.close();
-      res.send(airlineFlights);
-    });
-  }); 
+  var contents = fs.readFileSync("db/ASKAvailSeats.json");
+  var cursor = JSON.parse(contents);
+  var airlineFlights = {};
+  for(index in cursor){
+    airlineFlights[cursor[index].FlightID] = cursor[index];
+  }
+  res.send(airlineFlights);
 })
 
 app.post('/updateSeats', function (req, res){
   var seats = parseInt(req.body.seats);
   var flightId = parseInt(req.body.flightId);
-  var availSeats;
-  MongoClient.connect(url, function(err, db) {
-    var cursor = db.collection('airlineFlights').find({'FlightID':flightId});
-    cursor.forEach(function(doc) {
-      availSeats = doc.SeatsAvail;
-    },function(err){
-      var newSeats = availSeats - seats;
-      db.collection('airlineFlights').updateOne({'FlightID':flightId},{$set:{SeatsAvail:newSeats}}, function(err,doc){
+
+  var contents = fs.readFileSync("db/ASKAvailSeats.json");
+  var cursor = JSON.parse(contents);
+  for(index in cursor){
+    if(cursor[index].FlightID == flightId){
+      var newSeats = cursor[index].SeatsAvail - seats;
+      cursor[index].SeatsAvail = newSeats;
+      var data =  JSON.stringify(cursor, null, 2);
+      fs.writeFile("db/ASKAvailSeats.json", data, (err) => {  
+        if (err) throw err;
         res.send({'updatedSeats':newSeats});
-        db.close();
-      });
     });
-  }); 
+    }
+  }
 })
 
 app.listen(3000, function () {
