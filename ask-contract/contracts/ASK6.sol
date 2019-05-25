@@ -1,0 +1,112 @@
+pragma solidity ^0.5.0;
+    
+    contract Airlines  {
+   
+    address chairperson;
+    
+    struct reqStruc{
+        uint fID;
+        uint numSeats;
+        uint passengerID;
+        uint reqID;
+        address toAirln;
+    } 
+
+   struct respStruc{
+        uint reqID;
+        bool status;
+        address fromAirline;
+    } 
+
+    
+    
+    mapping (address=>uint) public escrow;
+    mapping (address=>uint) membership; 
+    mapping (address=>reqStruc) reqs;
+    mapping (address=>respStruc) reps;
+    mapping (address=>uint) settledReqID;
+    
+    //modifier or rules
+    modifier onlyChairperson{
+        require(msg.sender==chairperson);
+        _;
+    }
+    modifier onlyMember{
+        require(membership[msg.sender]==1);
+        _;
+    }
+    
+    // constructor function
+    constructor () public payable  {
+      
+        chairperson=msg.sender;
+        membership[msg.sender]=1; // automatically registered
+        escrow[msg.sender] = msg.value;
+
+        
+    }
+    
+    function register ( ) public payable{
+        
+        address AirlineA =msg.sender;
+        membership[AirlineA]=1;
+        escrow[msg.sender] = msg.value;
+
+        
+    }
+        
+   function unRegister (address payable AirlineZ) onlyChairperson public {
+        
+        if(chairperson!=msg.sender){
+            revert();
+        }
+        membership[AirlineZ]=0;
+        //return escrow to leaving airline: other consitions may be verified
+        AirlineZ.transfer(escrow[AirlineZ]);
+        escrow[AirlineZ] = 0;
+        
+    }
+    
+    
+    function requestASK (uint reqID, uint flighID, uint numSeats, uint custID, address toAirline) onlyMember public{
+        /*if(membership[toAirline]!=1){
+            revert();}  */
+        require(membership[toAirline] == 1);
+        reqs[msg.sender] = reqStruc(reqID, flighID, numSeats, custID, toAirline);
+      
+    }
+    
+    function  responseASK (uint reqID, bool success, address fromAirline) onlyMember public{
+      
+        if(membership[fromAirline]!=1){
+            revert();
+        }
+        
+        reps[msg.sender].status=success;
+        reps[msg.sender].fromAirline = fromAirline;
+        reps[msg.sender].reqID = reqID;
+       
+       
+    }
+    
+    function settlePayment  (uint reqID, address payable toAirline, uint numSeats) onlyMember payable public{
+        //before calling this, it will update ASK view table
+        address fromAirline=msg.sender;
+        //asseume 1 unit of escrow for each seat 
+        
+        //this is the consortium account transfer you want to do
+        escrow[toAirline] = escrow[toAirline] + numSeats;
+        escrow[fromAirline] = escrow[fromAirline] - numSeats;
+       
+        settledReqID[msg.sender] = reqID;
+       
+    }
+    
+    function replinishEscrow() payable public
+    {
+        escrow[msg.sender] = escrow[msg.sender] + msg.value;
+    }
+}
+
+
+    
