@@ -13,7 +13,7 @@
     "FromCity": "BUF",
     "ToCity": "NYC",
     "DepTime": "10:00 AM",
-    "SeatsAvail": 6
+    "SeatsAvail": 0
   },
   {
     "FlightID": 3,

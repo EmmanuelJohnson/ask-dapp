@@ -14,7 +14,7 @@ App = {
     },
   
     initWeb3: function() {
-          // Is there is an injected web3 instance?
+      // Is there is an injected web3 instance?
       if (typeof web3 !== 'undefined') {
         App.web3Provider = web3.currentProvider;
       } else {
@@ -44,11 +44,11 @@ App = {
   
     bindEvents: function() {
         $(document).on('click', '#airlineRegister', App.handleRegister);
-        $(document).on('click', '#airlineUnRegister', App.handleUnRegister);
-        $(document).on('click', '#airlineRequest', App.handleRequestASK);
-        $(document).on('click', '#airlineResponse', App.handleResponseASK);
+        $(document).on('click', '#airlineUnRegister', App.handleUnregister);
+        $(document).on('click', '#airlineRequest', App.handleASKrequest);
+        $(document).on('click', '#airlineResponse', App.handleASKresponse);
         $(document).on('click', '#airlineSettle', App.handleSettlePayment);
-        $(document).on('click', '#replenishEscrow', App.handleReplinishEscrow);
+        $(document).on('click', '#replenishEscrow', App.handleReplenishEscrow);
     },
 
     populateFlightDetails: function(){
@@ -61,7 +61,7 @@ App = {
             $('#flights')
             .append(
               "<li><div class='todo-content'><h4 class='todo-name'> \
-              <span><strong>#"+flight.FlightID+"</strong></span><span><strong>"+flight.Airline+"</strong></span> \
+              <span><strong>"+flight.FlightID+"</strong></span><span><strong>"+flight.Airline+"</strong></span> \
               <span>"+flight.FromCity+"</span><span>"+flight.ToCity+"</span>\
               <span class='depTime'>"+flight.DepTime+"</span>\
               <span class='availSeats seats"+flight.FlightID+"'>"+flight.SeatsAvail+"</span> \
@@ -102,90 +102,90 @@ App = {
       .then(function(result){
         console.log(result);
         if(result && parseInt(result.receipt.status) == 1){
-          App.showNotification("Registeration Successful", 4);
+          App.showNotification("Registeration successful", 4);
         }
         else{
-          App.showNotification("Error During Registeration", 5);
+          App.showNotification("Error during registeration", 5);
         }
       })
       .catch(function(err){
         console.log(err);
-        App.showNotification("Error During Registeration", 5);
+        App.showNotification("Error during registeration", 5);
       });
     },
 
     //Function to hanlde the deregisteration of an airline
     //This can be done only by the chairperson
     //Should get the address of the airline to be deregistered
-    handleUnRegister: function(event){
+    handleUnregister: function(event){
       var airlineAddress = $('#airlineUnRegAddress').val();
       App.contracts.vote.deployed().then(function(instance){
-        return instance.unRegister(airlineAddress);
+        return instance.unregister(airlineAddress);
       })
       .then(function(result){
         console.log(result);
         if(result && parseInt(result.receipt.status) == 1){
-          App.showNotification("UnRegisteration Successful", 4);
+          App.showNotification("Unregisteration Successful", 4);
         }
         else{
-          App.showNotification("Error During UnRegisteration", 5);
+          App.showNotification("Error during unregisteration", 5);
         }
       })
       .catch(function(err){
         console.log(err);
-        App.showNotification("Error During UnRegisteration", 5);
+        App.showNotification("Error during unregisteration", 5);
       });
     },
 
     //Function to handle the ASK Request
     //Should get the request id, flight id, passenger id, number of seats needed,
     //the to airline address
-    handleRequestASK: function(event){
+    handleASKrequest: function(event){
       var reqId = $('#askReqReqId').val();
       var flightId = $('#askReqFlightId').val();
       var psngrId = $('#askReqPsngrId').val();
       var nSeats = $('#askReqNumSeats').val();
       var toAirline = $('#askReqAddress').val();
       App.contracts.vote.deployed().then(function(instance){
-        return instance.requestASK(reqId, flightId, nSeats, psngrId, toAirline);
+        return instance.ASKrequest(reqId, flightId, nSeats, psngrId, toAirline);
       })
       .then(function(result){
         console.log(result);
         if(result && parseInt(result.receipt.status) == 1){
           App.requests[reqId] = flightId;
-          App.showNotification("Request Successful", 4);
+          App.showNotification("Request successful", 4);
         }
         else{
-          App.showNotification("Error During Request", 5);
+          App.showNotification("Error during request", 5);
         }
       })
       .catch(function(err){
         console.log(err);
-        App.showNotification("Error During Request", 5);
+        App.showNotification("Error during request", 5);
       });
     },
 
     //Function to handle the ASK Response
     //Should get the request id, success value, from airline address
-    handleResponseASK: function(event){
+    handleASKresponse: function(event){
       var reqId = $('#askRespReqId').val();
       var success = ($('#askRespFlightId').val().toLowerCase() == 'true');
       var fromAirline = $('#askRespAddress').val();
       App.contracts.vote.deployed().then(function(instance){
-        return instance.responseASK(reqId, success, fromAirline);
+        return instance.ASKresponse(reqId, success, fromAirline);
       })
       .then(function(result){
         console.log(result);
         if(result && parseInt(result.receipt.status) == 1){
-          App.showNotification("Response Successful", 4);
+          App.showNotification("Response successful", 4);
         }
         else{
-          App.showNotification("Error During Response", 5);
+          App.showNotification("Error during response", 5);
         }
       })
       .catch(function(err){
         console.log(err);
-        App.showNotification("Error During Response", 5);
+        App.showNotification("Error during response", 5);
       });
     },
 
@@ -203,40 +203,42 @@ App = {
         console.log(result);
         if(result && parseInt(result.receipt.status) == 1){
           App.updateSeats(nSeats, flightId);
-          App.showNotification("Settlement Successful", 4);
+          App.showNotification("Settlement successful", 4);
         }
         else{
-          App.showNotification("Error During Settlement", 5);
+          App.showNotification("Error during settlement", 5);
         }
       })
       .catch(function(err){
         console.log(err);
-        App.showNotification("Error During Settlement", 5);
+        App.showNotification("Error during settlement", 5);
       });
     },
 
     //Function to handle the replenish escrow
+    //Should get the amount
     handleReplenishEscrow: function(event){
+      var amount = $('#replenishAmount').val();
       App.contracts.vote.deployed().then(function(instance){
-        return instance.replinishEscrow();
+        return instance.replenishEscrow({value:web3.toWei(amount, "ether")});
       })
       .then(function(result){
         console.log(result);
         if(result && parseInt(result.receipt.status) == 1){
-          App.showNotification("Replenish Successful", 4);
+          App.showNotification("Replenish successful", 4);
 
         }
         else{
-          App.showNotification("Error During Replenish", 5);
+          App.showNotification("Error during replenish", 5);
         }
       })
       .catch(function(err){
         console.log(err);
-        App.showNotification("Error During Replenish", 5);
+        App.showNotification("Error during replenish", 5);
       });
     },
 
-    //Function to update the seats for a flight in the mongo database
+    //Function to update the seats for a flight in the database
     //Requires the number of seats that should be reduced and flight id
     updateSeats: function(seats, flightId){
       $.post("/updateSeats",

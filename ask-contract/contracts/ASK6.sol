@@ -1,14 +1,14 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
     
     contract Airlines  {
    
     address chairperson;
     
     struct reqStruc{
+        uint reqID;
         uint fID;
         uint numSeats;
         uint passengerID;
-        uint reqID;
         address toAirln;
     } 
 
@@ -55,7 +55,7 @@ pragma solidity ^0.5.0;
         
     }
         
-   function unRegister (address payable AirlineZ) onlyChairperson public {
+   function unregister (address payable AirlineZ) onlyChairperson public {
         
         if(chairperson!=msg.sender){
             revert();
@@ -68,7 +68,7 @@ pragma solidity ^0.5.0;
     }
     
     
-    function requestASK (uint reqID, uint flighID, uint numSeats, uint custID, address toAirline) onlyMember public{
+    function ASKrequest (uint reqID, uint flighID, uint numSeats, uint custID, address toAirline) onlyMember public{
         /*if(membership[toAirline]!=1){
             revert();}  */
         require(membership[toAirline] == 1);
@@ -76,7 +76,7 @@ pragma solidity ^0.5.0;
       
     }
     
-    function  responseASK (uint reqID, bool success, address fromAirline) onlyMember public{
+    function  ASKresponse (uint reqID, bool success, address fromAirline) onlyMember public{
       
         if(membership[fromAirline]!=1){
             revert();
@@ -102,7 +102,7 @@ pragma solidity ^0.5.0;
        
     }
     
-    function replinishEscrow() payable public
+    function replenishEscrow() payable public
     {
         escrow[msg.sender] = escrow[msg.sender] + msg.value;
     }
