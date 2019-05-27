@@ -58,16 +58,17 @@ App = {
           for(d in data){
             console.log(data);
             var flight = data[d];
-            $('#flights')
-            .append(
-              "<li><div class='todo-content'><h4 class='todo-name'> \
-              <span><strong>"+flight.FlightID+"</strong></span><span><strong>"+flight.Airline+"</strong></span> \
-              <span>"+flight.FromCity+"</span><span>"+flight.ToCity+"</span>\
-              <span class='depTime'>"+flight.DepTime+"</span>\
-              <span class='availSeats seats"+flight.FlightID+"'>"+flight.SeatsAvail+"</span> \
-              </h4>\
-              </div></li>"
-            );
+            if(flight.SeatsAvail > 0)
+              $('#flights')
+              .append(
+                "<li id='flight-data-"+flight.FlightID+"'><div class='todo-content'><h4 class='todo-name'> \
+                <span><strong>"+flight.FlightID+"</strong></span><span><strong>"+flight.Airline+"</strong></span> \
+                <span>"+flight.FromCity+"</span><span>"+flight.ToCity+"</span>\
+                <span class='depTime'>"+flight.DepTime+"</span>\
+                <span class='availSeats seats"+flight.FlightID+"'>"+flight.SeatsAvail+"</span> \
+                </h4>\
+                </div></li>"
+              );
           }
           return App.bindEvents();
         }
@@ -249,7 +250,10 @@ App = {
       function(data, status){
         if(status == "success"){
           //Reduces the seats value in the table
-          $(".seats"+String(flightId)).text(data.updatedSeats);
+          if(data.updateSeats > 0)
+            $(".seats"+String(flightId)).text(data.updatedSeats);
+          else
+            $('#flight-data-'+String(flightId)).remove();
         }
       });
     },

@@ -224,3 +224,7 @@ li .todo-name span:last-child{
 .form-group .form-control{
     width: auto;
 }
+
+.todo.functions ul.list>li{
+    padding: 10px 25px;
+}
