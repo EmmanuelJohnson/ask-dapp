@@ -7,7 +7,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(express.static('src'));
-app.use(express.static('../ask-contract/build/contracts'));
+app.use(express.static('../ask-contracts/build/contracts'));
 
 app.get('/', function (req, res) {
   res.render('index1.html');
